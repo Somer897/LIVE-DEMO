@@ -54,44 +54,54 @@ links_list = []
 try:
     for iter in range(0, 5, 1):
         links_list += get_all_links_on_page()
+        time.sleep(2)
         click_next_page()
 except:
     print('error')
 finally:
     print("All done")
     clean_links_list = clean_links(links_list)
-    
 
 with open('main.txt', 'a', encoding='UTF-8') as file:
      file.write('\n'.join(map(str, clean_links_list)))
 
+table = pd.DataFrame()
+for link in clean_links_list:
+    driver.get(link)
 
-'''for link in clean_links_list:
-     driver.get(link)
-     break'''
-
-def get_characteristics(driver):
-    dicti = {}
-    dicti.update({'Название модели:': driver.find_element(By.CLASS_NAME, value= 'catalog-masthead__title').text})
+    lists = []
+    lists.append({'Название модели:': driver.find_element(By.CLASS_NAME, value= 'catalog-masthead__title').text})
     elements = driver.find_elements(By.CSS_SELECTOR, value = '.product-specs__table tr')
     for item in elements:
-         
+            
         tds = item.find_elements(By.TAG_NAME, value='td')
         if len(tds) == 2:
             if not tds[1].text:
-                if tds[1].find_element(By.CLASS_NAME, value='i-x'):
-                    dicti.update({tds[0].text: 'no'})
+                if tds[1].find_elements(By.CLASS_NAME, value='i-x'):
+                    lists.append({tds[0].text: 'no'})
                 else:
-                    dicti.update({tds[0].text: 'yea'})
+                    lists.append({tds[0].text: 'yea'})
             else:
-                dicti.update({tds[0].text: tds[1].text})
-
-
-    return dicti
-
-model_row = get_characteristics(driver)
-
-characteristics_table = pd.DataFrame(columns=model_row.keys())
+                lists.append({tds[0].text: tds[1].text})
 
 
 
+    # new_row = pd.DataFrame([lists])
+    # table = pd.concat([table, new_row], ignore_index=True)
+
+    whatever = 0
+    for i in range(table.shape[0]):
+        if str(table[115][i]) != 'nan':
+            whatever = i
+
+    table.loc[whatever]
+    abc = []
+    for d in table.loc[whatever]:
+        for key, _ in d.items():
+            abc.append(key)
+
+    tab = pd.DataFrame(columns=abc)
+    for i in range(table.shape[0] - 1):
+        for j in range(table.shape[1] - 1):
+            for key, value in table[j][i]:
+                if 
